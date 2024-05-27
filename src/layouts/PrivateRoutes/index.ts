@@ -1,0 +1,1 @@
+export {PrivateRouts} from './PrivateRoutes'
