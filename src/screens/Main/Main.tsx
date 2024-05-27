@@ -9,13 +9,13 @@ import {addTodo, saveChangeTodoList} from "../../store/slices/todoListSlice.tsx"
 import {TodoElement} from "../../components";
 
 export const MainScreen: FC = () => {
-  const {classes, cx} = useStyles();
+  const {classes} = useStyles();
   const dispatch = useAppDispatch();
 
   const {todoList} = useAppSelector(state => state.todoList);
 
-  const [filter, setFilter] = useState<string>('');
-  const [newTodo, setNewTodo] = useState<TodoModel | null>(null);
+  const [filter, setFilter] = useState<string>('all');
+  const [newTodo, setNewTodo] = useState<TodoModel>({id: null, text: '', status: false});
 
   const filteredList = useMemo(() => {
     if (filter === 'done') {
@@ -33,24 +33,24 @@ export const MainScreen: FC = () => {
   }
 
   const handleAddTodo = () => {
-    const todo = {
+    setNewTodo({
       id: Math.floor(1000 + Math.random() * 9000),
       text: 'New todo',
-      status: 0
-    };
-    setNewTodo(todo);
+      status: false
+    });
   };
 
   const handleSaveTodo = () => {
     dispatch(addTodo(newTodo));
     dispatch(saveChangeTodoList());
-    setNewTodo(null)
+    setNewTodo({id: null, text: '', status: false})
   }
 
   const handleChangeTodoText = (e: ChangeEvent<HTMLInputElement>) => {
-    const _newTodo = {...newTodo};
-    _newTodo.text = e.target.value;
-    setNewTodo(_newTodo);
+    setNewTodo({
+      ...newTodo,
+      text: e.target.value,
+    });
   }
 
   // renders
@@ -94,13 +94,13 @@ export const MainScreen: FC = () => {
           {filteredList.map(todo => (
             <TodoElement todo={todo} key={todo.id}/>
           ))}
-          {newTodo && <div className={classes.todo}>
+          {newTodo.id && <div className={classes.todo}>
             <InputText className={classes.input} value={newTodo.text} onChange={handleChangeTodoText}/>
             <Button className={classes.saveTodo} icon='pi pi-save' onClick={handleSaveTodo}/>
-            <Button className={classes.removeTodo} icon='pi pi-times' onClick={() => setNewTodo(null)}/>
+            <Button className={classes.removeTodo} icon='pi pi-times' onClick={() => setNewTodo({id: null, text: '', status: false})}/>
           </div>}
         </div>
-        <Button className={classes.addTodo} onClick={handleAddTodo} disabled={!!newTodo} label='Добавить'
+        <Button className={classes.addTodo} onClick={handleAddTodo} disabled={!!newTodo.id} label='Добавить'
                 icon='pi pi-plus'/>
       </div>
     </div>

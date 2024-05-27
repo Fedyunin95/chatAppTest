@@ -12,28 +12,31 @@ import {
 import {useAppDispatch} from "../../hooks/redux.ts";
 import {tss} from "../../helpers";
 
-export const TodoElement: FC<{todo: TodoModel}> = (props) => {
+export const TodoElement: FC<{ todo: TodoModel }> = (props) => {
   const {todo} = props;
   const dispatch = useAppDispatch();
   const {classes, cx} = useStyles();
 
-  const [editedTodo, setEditedTodo] = useState<TodoModel | null>(null);
+  const [editedTodo, setEditedTodo] = useState<TodoModel>({id: null, text: '', status: false});
 
   const handleChangeEditedTodoText = (e: ChangeEvent<HTMLInputElement>) => {
-    const _editedTodo = {...editedTodo};
-    _editedTodo.text = e.target.value;
-    setEditedTodo(_editedTodo);
+    setEditedTodo({
+      ...editedTodo,
+      text: e.target.value
+    });
   }
 
   const handleSaveEditedTodo = () => {
     dispatch(editTodo(editedTodo));
     dispatch(saveChangeTodoList());
-    setEditedTodo(null)
+    setEditedTodo({id: null, text: '', status: false})
   }
 
-  const handleRemoveTodo = (id: number) => {
-    dispatch(deleteTodo(id));
-    dispatch(saveChangeTodoList());
+  const handleRemoveTodo = (id: number | null) => {
+    if (id) {
+      dispatch(deleteTodo(id));
+      dispatch(saveChangeTodoList());
+    }
   }
 
   const handleChangeStatusTodo = (todo: TodoModel) => {
@@ -67,7 +70,8 @@ export const TodoElement: FC<{todo: TodoModel}> = (props) => {
     : <div className={classes.todo}>
       <InputText className={classes.input} value={editedTodo.text} onChange={handleChangeEditedTodoText}/>
       <Button className={classes.saveTodo} icon='pi pi-save' onClick={handleSaveEditedTodo}/>
-      <Button className={classes.removeTodo} icon='pi pi-times' onClick={() => setEditedTodo(null)}/>
+      <Button className={classes.removeTodo} icon='pi pi-times'
+              onClick={() => setEditedTodo({id: null, text: '', status: false})}/>
     </div>
 }
 
